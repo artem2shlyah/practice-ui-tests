@@ -11,11 +11,11 @@ open class ChromeDriverConfiguration {
     companion object {
         lateinit var driver: ChromeDriver
 
-//        @JvmStatic
-//        @AfterAll
-//        fun browserQuit() {
-//            driver.quit()
-//        }
+        @JvmStatic
+        @AfterAll
+        fun browserQuit() {
+            driver.quit()
+        }
 
         @JvmStatic
         @BeforeAll

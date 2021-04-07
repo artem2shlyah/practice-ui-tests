@@ -41,8 +41,6 @@ class FirefoxTestClass: FirefoxDriverConfiguration() {
         driver.run {
             get(URL.Yandex.url)
             findElementByCssSelector(".home-link.desk-notif-card__login-new-item.desk-notif-card__login-new-item_enter").click()
-            findElementsByCssSelector(".CurrentAccount").firstOrNull()?.click()
-            findElementsByCssSelector(".AddAccountButton-wrapper").firstOrNull()?.click()
             findElementByCssSelector("#passp-field-login").sendKeys("NoAutotestUser" + Keys.ENTER)
             WebDriverWait(this, 1).until(
                 ExpectedConditions.visibilityOfAllElementsLocatedBy(

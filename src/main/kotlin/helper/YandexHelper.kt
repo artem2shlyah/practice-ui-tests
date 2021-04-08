@@ -1,5 +1,6 @@
 package helper
 
+import org.openqa.selenium.By
 import org.openqa.selenium.Keys
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.RemoteWebDriver
@@ -20,3 +21,18 @@ fun RemoteWebDriver.loginMail(user: String, password: String) {
         findElementByCssSelector("#passp-field-passwd").sendKeys(password + Keys.ENTER)
     }
 }
+
+fun RemoteWebDriver.goToYandexMarket() {
+    get(URL.Yandex.url)
+    findElementByXPath(".//*[text()='Маркет']/..").click()
+    close()
+    switchTo().window(windowHandles.toList().last())
+}
+
+fun RemoteWebDriver.addToCompareAndGetUrlProductByXpath(xpath: String): String {
+    val product = findElementByXPath(xpath)
+    product.findElement(By.xpath(".//*[@aria-label][2]")).click()
+
+    return product.findElement(By.xpath(".//a")).getAttribute("href").substringBefore("?")
+}
+

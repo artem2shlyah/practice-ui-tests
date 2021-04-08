@@ -1,7 +1,5 @@
 import configuration.FirefoxDriverConfiguration
-import helper.URL
-import helper.loginMail
-import helper.makeGoogleRequest
+import helper.*
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
@@ -11,15 +9,15 @@ import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 
 class FirefoxTestClass: FirefoxDriverConfiguration() {
+    private val waiter = WebDriverWait(driver, 2)
 
     @Test
     fun secondGoogleLinkTest() {
         driver.run {
             get(URL.Google.url)
             makeGoogleRequest("first keys to send")
-            val scndtLink = findElementByXPath(".//*[@class='g'][2]//a").getAttribute("href")
-            get(scndtLink)
-            pageSource shouldContain "SendKeys.Send(String) Method"
+            val scndLink = findElementByXPath(".//*[@class='g'][2]//a").getAttribute("href")
+            get(scndLink)
         }
     }
 
@@ -27,7 +25,7 @@ class FirefoxTestClass: FirefoxDriverConfiguration() {
     fun invalidPasswordLoginYandexTest() {
         driver.run {
             loginMail("AutotestLogin", "NoAutotestPassword")
-            WebDriverWait(this, 1).until(
+            waiter.until(
                 ExpectedConditions.visibilityOfAllElementsLocatedBy(
                     By.cssSelector(".Textinput-Hint.Textinput-Hint_state_error")
                 )
@@ -42,12 +40,34 @@ class FirefoxTestClass: FirefoxDriverConfiguration() {
             get(URL.Yandex.url)
             findElementByCssSelector(".home-link.desk-notif-card__login-new-item.desk-notif-card__login-new-item_enter").click()
             findElementByCssSelector("#passp-field-login").sendKeys("NoAutotestUser" + Keys.ENTER)
-            WebDriverWait(this, 1).until(
+            waiter.until(
                 ExpectedConditions.visibilityOfAllElementsLocatedBy(
                     By.cssSelector(".Textinput-Hint.Textinput-Hint_state_error")
                 )
             )
             findElementByCssSelector(".Textinput-Hint.Textinput-Hint_state_error").text shouldBe "Такого аккаунта нет"
+        }
+    }
+
+    @Test
+    fun deleteComparingPorductsTest() {
+        driver.run {
+            goToYandexMarket()
+            val input = findElementByCssSelector("#header-search")
+            input.sendKeys("Note 8" + Keys.ENTER)
+            val firstProductUrl = addToCompareAndGetUrlProductByXpath(".//article[@data-autotest-id='product-snippet'][1]")
+            val secondProductUrl = addToCompareAndGetUrlProductByXpath(".//article[@data-autotest-id='product-snippet'][2]")
+            waiter.until(
+                ExpectedConditions.visibilityOfElementLocated(By.xpath(".//*[@data-apiary-widget-name='@market/PopupInformer']"))
+            )
+            findElementByXPath(".//a[@href='/my/compare-lists']").click()
+            waiter.until(ExpectedConditions.urlContains("/compare/"))
+            val firstComparingProductUrl = findElementByXPath(".//div[@data-apiary-widget-name='@MarketNode/CompareContent']//a[@href][1]").getAttribute("href").substringBefore("?")
+            val secondComparingProductUrl = findElementByXPath(".//div[@data-apiary-widget-name='@MarketNode/CompareContent']//a[@href][2]").getAttribute("href").substringBefore("?")
+            firstComparingProductUrl shouldContain firstProductUrl
+            secondComparingProductUrl shouldContain secondProductUrl
+            findElementByXPath(".//button[text()='Удалить список']").click()
+            waiter.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(".//div[@data-apiary-widget-name='@MarketNode/CompareContent']")))
         }
     }
 }

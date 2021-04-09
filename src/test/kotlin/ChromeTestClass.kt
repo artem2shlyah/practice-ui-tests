@@ -1,5 +1,6 @@
 import configuration.ChromeDriverConfiguration
 import helper.*
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
@@ -44,7 +45,7 @@ class ChromeTestClass: ChromeDriverConfiguration() {
     @Test
     fun successfullLoginYandexTest() {
         driver.run {
-            loginMail("AutotestLogin", "autotestPassword123")
+            loginYandex("AutotestLogin", "autotestPassword123")
             findElementByCssSelector(".username.desk-notif-card__user-name").text shouldBe "AutotestLogin"
         }
     }
@@ -52,7 +53,7 @@ class ChromeTestClass: ChromeDriverConfiguration() {
     @Test
     fun successfullLogoutYandexTest() {
         driver.run {
-            loginMail("AutotestLogin", "autotestPassword123")
+            loginYandex("AutotestLogin", "autotestPassword123")
             findElementByCssSelector(".home-link.usermenu-link__control.home-link_black_yes").click()
             findElementByXPath(".//a[@class='menu__item usermenu__item menu__item_type_link'][@aria-label='Выйти']").click()
             findElementByCssSelector(".home-link.desk-notif-card__login-new-item.desk-notif-card__login-new-item_enter")
@@ -113,6 +114,16 @@ class ChromeTestClass: ChromeDriverConfiguration() {
             val secondComparingProductUrl = findElementByXPath(".//div[@data-apiary-widget-name='@MarketNode/CompareContent']//a[@href][2]").getAttribute("href").substringBefore("?")
             firstComparingProductUrl shouldContain firstProductUrl
             secondComparingProductUrl shouldContain secondProductUrl
+        }
+    }
+
+    @Test
+    fun searchYandexMusicTest() {
+        driver.run {
+            goToYandexMusic()
+            findElementByCssSelector(".d-input__field.deco-input").sendKeys("Metal")
+            findElementByXPath(".//*[@class='d-suggest-item__title-main'][text()='Metallica']/../../a[@class='d-suggest-item__wrapper-link']").click()
+            findElementsByXPath(".//div[contains(@class, 'album__artist')]//a[text()='Metallica']").size shouldBeGreaterThan 0
         }
     }
 }

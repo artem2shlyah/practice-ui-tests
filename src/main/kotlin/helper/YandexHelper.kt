@@ -13,7 +13,7 @@ fun RemoteWebDriver.getMoreElement(): WebElement {
     return more
 }
 
-fun RemoteWebDriver.loginMail(user: String, password: String) {
+fun RemoteWebDriver.loginYandex(user: String, password: String) {
     get(URL.Yandex.url)
     if (findElementsByCssSelector(".username.desk-notif-card__user-name").isEmpty()) { //todo подумать на оптимизацией implicitlyWait в этом месте
         findElementByCssSelector(".home-link.desk-notif-card__login-new-item.desk-notif-card__login-new-item_enter").click()
@@ -23,10 +23,18 @@ fun RemoteWebDriver.loginMail(user: String, password: String) {
 }
 
 fun RemoteWebDriver.goToYandexMarket() {
-    get(URL.Yandex.url)
+    if (currentUrl != URL.Yandex.url) get(URL.Yandex.url)
     findElementByXPath(".//*[text()='Маркет']/..").click()
     close()
     switchTo().window(windowHandles.toList().last())
+}
+
+fun RemoteWebDriver.goToYandexMusic() {
+    if (currentUrl != URL.Yandex.url) get(URL.Yandex.url)
+    findElementByXPath(".//*[text()='Музыка']/..").click()
+    close()
+    switchTo().window(windowHandles.toList().last())
+    findElementByCssSelector(".payment-plus__header-close").click()
 }
 
 fun RemoteWebDriver.addToCompareAndGetUrlProductByXpath(xpath: String): String {
@@ -35,4 +43,7 @@ fun RemoteWebDriver.addToCompareAndGetUrlProductByXpath(xpath: String): String {
 
     return product.findElement(By.xpath(".//a")).getAttribute("href").substringBefore("?")
 }
+
+fun WebElement.getProductPriceFromYandexMarket(): Float =
+    this.findElement(By.xpath(".//*[@data-autotest-currency='б.p.']/span")).text.replace(",", ".").replace(" ", "").toFloat()
 

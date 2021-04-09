@@ -1,10 +1,13 @@
 import configuration.FirefoxDriverConfiguration
 import helper.*
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.By
 import org.openqa.selenium.Keys
+import org.openqa.selenium.interactions.Actions
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 
@@ -24,7 +27,7 @@ class FirefoxTestClass: FirefoxDriverConfiguration() {
     @Test
     fun invalidPasswordLoginYandexTest() {
         driver.run {
-            loginMail("AutotestLogin", "NoAutotestPassword")
+            loginYandex("AutotestLogin", "NoAutotestPassword")
             waiter.until(
                 ExpectedConditions.visibilityOfAllElementsLocatedBy(
                     By.cssSelector(".Textinput-Hint.Textinput-Hint_state_error")
@@ -68,6 +71,39 @@ class FirefoxTestClass: FirefoxDriverConfiguration() {
             secondComparingProductUrl shouldContain secondProductUrl
             findElementByXPath(".//button[text()='Удалить список']").click()
             waiter.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(".//div[@data-apiary-widget-name='@MarketNode/CompareContent']")))
+        }
+    }
+
+    @Test
+    fun sortByPriceYandexMarketTest() {
+        driver.run {
+            goToYandexMarket()
+            findElementByXPath(".//*[text()='Электроника']").click()
+            findElementByXPath(".//*[text()='Экшн-камеры']").click()
+            findElementByXPath(".//a[text()='Экшн-камеры']").click()
+            findElementByXPath(".//button[@data-autotest-id='dprice']").click()
+            findElementByXPath(".//button[@data-autotest-id='aprice']").click()
+            Thread.sleep(2000)
+            val listOfProducts = findElementsByXPath(".//div[@data-zone-name='snippetList']/article")
+            var price = listOfProducts[0].getProductPriceFromYandexMarket()
+            listOfProducts.forEach {
+                val currentPrice = it.getProductPriceFromYandexMarket()
+                currentPrice shouldBeLessThanOrEqualTo price
+                price = currentPrice
+            }
+        }
+    }
+
+    @Test
+    fun playAudioYandexMusciTest() {
+        driver.run {
+            goToYandexMusic()
+            findElementByCssSelector(".d-input__field.deco-input").sendKeys("Beyo")
+            findElementByXPath(".//*[@class='d-suggest-item__title-main'][text()='Beyoncé']/../../a[@class='d-suggest-item__wrapper-link']").click()
+            Actions(this).moveToElement(findElementByCssSelector(".d-track__cover")).perform()
+            findElementByXPath(".//div[contains(@class, 'd-track')]//button[contains(@class, 'button-play')]").click()
+            Thread.sleep(2000)
+            findElementByCssSelector(".progress__bar.progress__text").getAttribute("data-played-time").toDouble() shouldBeGreaterThan 0.0
         }
     }
 }

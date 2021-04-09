@@ -1,9 +1,7 @@
 package configuration
 
 import helper.DriverHelper
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.*
 import org.openqa.selenium.chrome.ChromeDriver
 
 open class ChromeDriverConfiguration {
